@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Feed Diário — Economia & Tech</title>
+  <title>Feed Diário — Economia &amp; Tech</title>
 
   <!-- Configurações de PWA e tela inicial do iPhone (iOS) -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#090d16" />
 
-  <!-- Ícone elegante em SVG data-URI para tela inicial do iPhone -->
+  <!-- Ícone em SVG data-URI para tela inicial do iPhone -->
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23111827'/%3E%3Cstop offset='100%25' stop-color='%23090d16'/%3E%3C/linearGradient%3E%3ClinearGradient id='acc' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2338bdf8'/%3E%3Cstop offset='100%25' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23bg)'/%3E%3Crect x='24' y='24' width='464' height='464' rx='92' fill='none' stroke='%23ffffff' stroke-opacity='0.08' stroke-width='4'/%3E%3Crect x='116' y='136' width='280' height='36' rx='18' fill='url(%23acc)'/%3E%3Crect x='116' y='208' width='210' height='28' rx='14' fill='%23e2e8f0' fill-opacity='0.85'/%3E%3Crect x='116' y='264' width='248' height='28' rx='14' fill='%2394a3b8' fill-opacity='0.55'/%3E%3Ccircle cx='380' cy='346' r='34' fill='%2310b981' fill-opacity='0.2'/%3E%3Ccircle cx='380' cy='346' r='16' fill='%2334d399'/%3E%3C/svg%3E" />
 
   <!-- Fonte Inter -->
@@ -63,7 +63,6 @@
       overscroll-behavior-y: none;
     }
 
-    /* Suporte a safe-area em iPhones com Notch e Dynamic Island */
     .safe-top {
       padding-top: calc(var(--sat) + 12px);
     }
@@ -76,14 +75,12 @@
       padding-bottom: calc(var(--sab) + 92px);
     }
 
-    /* Efeito glassmorphism discreto para barra superior e inferior */
     .glass-bar {
       background: rgba(9, 13, 22, 0.84);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
 
-    /* Animação de rotação do botão atualizar */
     @keyframes spinSmooth {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -93,7 +90,6 @@
       animation: spinSmooth 0.85s linear infinite;
     }
 
-    /* Transição suave para modal */
     @keyframes fadeUp {
       from {
         opacity: 0;
@@ -168,8 +164,7 @@
   </header>
 
   <!-- Conteúdo principal rolável -->
-  <main id="main-content" class="max-w-2xl mx-auto px-4 pt-24 sm:pt-24 main-scroll-container" style="padding-top: calc(var(--sat) + 76px);">
-    <!-- Banner discreto de aviso quando estiver em modo exemplo/fallback -->
+  <main id="main-content" class="max-w-2xl mx-auto px-4 main-scroll-container" style="padding-top: calc(var(--sat) + 76px);">
     <div id="fallback-notice" class="hidden mb-4 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-xs leading-relaxed">
       <div class="flex items-start gap-2.5">
         <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -182,13 +177,10 @@
       </div>
     </div>
 
-    <!-- Lista de notícias / Estado de carregamento -->
-    <div id="feed-container" class="space-y-3.5">
-      <!-- Preenchido dinamicamente via JavaScript -->
-    </div>
+    <div id="feed-container" class="space-y-3.5"></div>
   </main>
 
-  <!-- Barra de 3 abas inferiores (estilo iOS/mobile) -->
+  <!-- Barra de 3 abas inferiores -->
   <nav aria-label="Fontes de notícias"
        class="fixed bottom-0 left-0 right-0 z-30 glass-bar border-t border-white/[0.08] safe-bottom">
     <div class="max-w-2xl mx-auto px-2 pt-1.5 grid grid-cols-3 gap-1">
@@ -289,10 +281,7 @@
   </div>
 
   <script>
-    // =========================================================================
-    // Configuração das fontes, cache de 5 minutos (300.000 ms) e fallback
-    // =========================================================================
-    const CACHE_TTL_MS = 5 * 60 * 1000; // 300.000 ms (5 minutos)
+    const CACHE_TTL_MS = 5 * 60 * 1000;
     const CACHE_STORAGE_KEY = 'feed_diario_cache_v1';
     const ACTIVE_TAB_KEY = 'feed_diario_active_tab_v1';
 
@@ -390,11 +379,9 @@
       }
     };
 
-    // Estado da aplicação
     let currentTab = loadInitialTab();
     let isLoading = false;
 
-    // Elementos DOM
     const headerTitleEl = document.getElementById('header-title');
     const sourceDotEl = document.getElementById('source-dot');
     const cacheStatusTextEl = document.getElementById('cache-status-text');
@@ -405,20 +392,15 @@
     const refreshIconEl = document.getElementById('refresh-icon');
     const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
 
-    // Elementos do modal de instalação
     const installModalEl = document.getElementById('install-modal');
     const btnInstallGuideEl = document.getElementById('btn-install-guide');
     const btnCloseModalEl = document.getElementById('btn-close-modal');
     const btnUnderstoodModalEl = document.getElementById('btn-understood-modal');
 
-    // Elementos de Pull-to-Refresh
     const ptrIndicatorEl = document.getElementById('ptr-indicator');
     const ptrIconEl = document.getElementById('ptr-icon');
     const ptrTextEl = document.getElementById('ptr-text');
 
-    // =========================================================================
-    // Funções auxiliares de armazenamento e formatação
-    // =========================================================================
     function loadInitialTab() {
       try {
         const saved = localStorage.getItem(ACTIVE_TAB_KEY);
@@ -526,10 +508,7 @@
       return '#';
     }
 
-    // =========================================================================
-    // Busca de feeds RSS reais (rss2json + allorigins) com fallback inteligente
-    // =========================================================================
-    async function fetchWithTimeout(url, timeoutMs = 6500) {
+    async function fetchWithTimeout(url, timeoutMs = 4500) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -617,7 +596,6 @@
         } catch (_) {}
       }
 
-      // Fallback inteligente com manchetes ilustrativas de exemplo
       const fallbackItems = sourceConfig.fallbackItems.map((item, idx) => ({
         ...item,
         pubDate: new Date(Date.now() - (idx + 1) * 24 * 60 * 1000).toISOString()
@@ -626,9 +604,6 @@
       return { items: fallbackItems, isFallback: true };
     }
 
-    // =========================================================================
-    // Renderização da interface, abas, cards e estados
-    // =========================================================================
     function updateTabSelectionUI() {
       const source = SOURCES[currentTab];
       headerTitleEl.textContent = source.name;
@@ -735,22 +710,17 @@
       }).join('');
     }
 
-    // =========================================================================
-    // Orquestração de carregamento com cache de 5 minutos e atualização manual
-    // =========================================================================
     async function loadTabFeed(tabId, forceRefresh = false) {
       const sourceConfig = SOURCES[tabId];
       if (!sourceConfig) return;
 
       const existingCache = getTabCache(tabId);
 
-      // Usa cache se tiver menos de 5 minutos e não for atualização forçada
       if (!forceRefresh && isCacheFresh(existingCache)) {
         renderFeed(sourceConfig, existingCache);
         return;
       }
 
-      // Se já houver cache antigo e estivermos atualizando, mostra o cache enquanto busca
       if (existingCache && Array.isArray(existingCache.items) && existingCache.items.length > 0) {
         renderFeed(sourceConfig, existingCache);
         cacheStatusTextEl.textContent = 'Atualizando feed...';
@@ -769,7 +739,6 @@
         };
         writeTabCache(tabId, freshEntry);
 
-        // Só renderiza se o usuário ainda estiver nesta aba
         if (currentTab === tabId) {
           renderFeed(sourceConfig, freshEntry);
         }
@@ -791,9 +760,6 @@
       loadTabFeed(tabId, false);
     }
 
-    // =========================================================================
-    // Gesto de Pull-to-Refresh (puxar para atualizar no celular)
-    // =========================================================================
     let touchStartY = 0;
     let pullDistance = 0;
     let isPulling = false;
@@ -847,9 +813,6 @@
       }
     });
 
-    // =========================================================================
-    // Eventos de botões, modal e atualização periódica do rótulo de tempo
-    // =========================================================================
     tabButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const tabId = btn.dataset.tab;
@@ -887,7 +850,6 @@
       }
     });
 
-    // Atualiza o indicador de cache a cada 30 segundos
     setInterval(() => {
       const cacheEntry = getTabCache(currentTab);
       if (cacheEntry && !isLoading) {
@@ -895,7 +857,6 @@
       }
     }, 30000);
 
-    // Inicialização
     updateTabSelectionUI();
     loadTabFeed(currentTab, false);
   </script>
