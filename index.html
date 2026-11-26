@@ -201,4 +201,1338 @@
                 aria-label="Limpar busca"
                 class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Aviso de modo exemplo -->
+      <div id="fallback-notice" class="hidden mb-4 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-xs leading-relaxed">
+        <div class="flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <span class="font-semibold text-amber-300">Exibindo manchetes ilustrativas de exemplo:</span>
+            os servidores RSS não responderam a tempo agora. Toque em <strong>Atualizar</strong> novamente em alguns segundos.
+          </div>
+        </div>
+      </div>
+
+      <div id="feed-container" class="space-y-3.5"></div>
+    </section>
+
+    <!-- SEÇÃO 2: GRÁFICO DE AÇÕES -->
+    <section id="stocks-section" class="hidden space-y-4">
+      <!-- Formulário de busca de Ticker -->
+      <form id="stock-search-form" class="flex items-center gap-2">
+        <div class="relative flex-1">
+          <input id="stock-ticker-input"
+                 type="text"
+                 maxlength="14"
+                 placeholder="Código da ação (ex: PETR4, VALE3, AAPL)"
+                 autocapitalize="characters"
+                 autocomplete="off"
+                 spellcheck="false"
+                 class="w-full px-4 py-3 rounded-2xl bg-surface border border-white/[0.09] text-sm font-semibold uppercase tracking-wide text-white placeholder-slate-400 placeholder:font-normal placeholder:normal-case focus:outline-none focus:border-amber-400/60 transition" />
+        </div>
+        <button type="submit"
+                class="px-4 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-bold text-xs sm:text-sm transition shrink-0">
+          Buscar
+        </button>
+      </form>
+
+      <!-- Lista rápida de ações salvas / populares -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5" id="watchlist-chips"></div>
+
+      <!-- Card principal do ativo e gráfico -->
+      <div class="p-4 sm:p-5 rounded-3xl bg-surface border border-white/[0.08] space-y-4">
+        <!-- Cabeçalho do ativo -->
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h2 id="stock-symbol-title" class="text-xl font-bold text-white tracking-tight">PETR4.SA</h2>
+              <span id="stock-exchange-badge" class="px-2 py-0.5 rounded-md bg-white/[0.07] text-[10px] font-semibold text-slate-300">B3</span>
+            </div>
+            <p id="stock-company-name" class="text-xs text-slate-400 truncate mt-0.5">Carregando ativo...</p>
+          </div>
+
+          <button id="btn-toggle-watchlist"
+                  type="button"
+                  title="Salvar ou remover dos atalhos"
+                  class="p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.11] active:scale-95 border border-white/[0.08] text-amber-400 transition shrink-0">
+            <svg id="watchlist-star-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Preço e variação -->
+        <div class="flex items-baseline justify-between gap-2 flex-wrap">
+          <div>
+            <div id="stock-current-price" class="text-2xl sm:text-3xl font-bold text-white tracking-tight">—</div>
+            <div id="stock-hover-date" class="text-[11px] text-slate-400 mt-0.5">Toque ou deslize no gráfico para inspecionar</div>
+          </div>
+
+          <div id="stock-change-pill" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+            0,00%
+          </div>
+        </div>
+
+        <!-- Seletor de Tempo -->
+        <div class="grid grid-cols-6 gap-1 p-1 rounded-2xl bg-obsidian/90 border border-white/[0.06]" id="timeframe-selector">
+          <button type="button" data-range="1d" class="tf-btn py-1.5 rounded-xl text-xs font-semibold text-slate-400 transition">1D</button>
+          <button type="button" data-range="5d" class="tf-btn py-1.5 rounded-xl text-xs font-semibold text-slate-400 transition">5D</button>
+          <button type="button" data-range="1mo" class="tf-btn py-1.5 rounded-xl text-xs font-semibold text-slate-400 transition">1M</button>
+          <button type="button" data-range="6mo" class="tf-btn py-1.5 rounded-xl text-xs font-semibold text-slate-400 transition">6M</button>
+          <button type="button" data-range="1y" class="tf-btn py-1.5 rounded-xl text-xs font-semibold text-slate-400 transition">1A</button>
+          <button type="button" data-range="5y" class="tf-btn py-1.5 rounded-xl text-xs font-semibold text-slate-400 transition">5A</button>
+        </div>
+
+        <!-- Área do Gráfico SVG -->
+        <div id="stock-chart-wrapper" class="relative w-full h-56 sm:h-64 rounded-2xl bg-obsidian/70 border border-white/[0.05] overflow-hidden select-none touch-none">
+          <div id="stock-chart-container" class="w-full h-full flex items-center justify-center text-xs text-slate-400">
+            Carregando gráfico...
+          </div>
+        </div>
+
+        <!-- Métricas resumidas do período -->
+        <div class="grid grid-cols-3 gap-2 pt-1">
+          <div class="p-2.5 rounded-2xl bg-obsidian/70 border border-white/[0.05]">
+            <div class="text-[10px] text-slate-400">Abertura</div>
+            <div id="stock-stat-open" class="text-xs font-semibold text-slate-100 mt-0.5">—</div>
+          </div>
+          <div class="p-2.5 rounded-2xl bg-obsidian/70 border border-white/[0.05]">
+            <div class="text-[10px] text-slate-400">Máxima (Período)</div>
+            <div id="stock-stat-high" class="text-xs font-semibold text-emerald-300 mt-0.5">—</div>
+          </div>
+          <div class="p-2.5 rounded-2xl bg-obsidian/70 border border-white/[0.05]">
+            <div class="text-[10px] text-slate-400">Mínima (Período)</div>
+            <div id="stock-stat-low" class="text-xs font-semibold text-rose-300 mt-0.5">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Barra de 4 abas inferiores -->
+  <nav aria-label="Navegação principal"
+       class="fixed bottom-0 left-0 right-0 z-30 glass-bar border-t border-white/[0.08] safe-bottom">
+    <div class="max-w-2xl mx-auto px-1.5 pt-1.5 grid grid-cols-4 gap-1">
+      <button type="button"
+              data-tab="infomoney"
+              class="tab-btn group flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition active:scale-95">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 mb-1 opacity-80 group-aria-selected:opacity-100 group-aria-selected:scale-125 transition"></span>
+        <span class="text-[11px] font-semibold tracking-tight text-slate-400 group-aria-selected:text-white truncate">InfoMoney</span>
+        <span class="text-[9px] text-slate-500 group-aria-selected:text-emerald-300/90 mt-0.5">Mercado</span>
+      </button>
+
+      <button type="button"
+              data-tab="tecnoblog"
+              class="tab-btn group flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition active:scale-95">
+        <span class="w-2 h-2 rounded-full bg-sky-400 mb-1 opacity-80 group-aria-selected:opacity-100 group-aria-selected:scale-125 transition"></span>
+        <span class="text-[11px] font-semibold tracking-tight text-slate-400 group-aria-selected:text-white truncate">Tecnoblog</span>
+        <span class="text-[9px] text-slate-500 group-aria-selected:text-sky-300/90 mt-0.5">Tech</span>
+      </button>
+
+      <button type="button"
+              data-tab="macmagazine"
+              class="tab-btn group flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition active:scale-95">
+        <span class="w-2 h-2 rounded-full bg-violet-400 mb-1 opacity-80 group-aria-selected:opacity-100 group-aria-selected:scale-125 transition"></span>
+        <span class="text-[11px] font-semibold tracking-tight text-slate-400 group-aria-selected:text-white truncate">MacMagazine</span>
+        <span class="text-[9px] text-slate-500 group-aria-selected:text-violet-300/90 mt-0.5">Apple</span>
+      </button>
+
+      <button type="button"
+              data-tab="acoes"
+              class="tab-btn group flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition active:scale-95">
+        <span class="w-2 h-2 rounded-full bg-amber-400 mb-1 opacity-80 group-aria-selected:opacity-100 group-aria-selected:scale-125 transition"></span>
+        <span class="text-[11px] font-semibold tracking-tight text-slate-400 group-aria-selected:text-white truncate">Ações</span>
+        <span class="text-[9px] text-slate-500 group-aria-selected:text-amber-300/90 mt-0.5">Gráficos</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Modal: Como instalar no iPhone -->
+  <div id="install-modal"
+       class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="install-modal-title">
+    <div id="install-modal-card"
+         class="w-full max-w-md rounded-3xl bg-surface border border-white/10 shadow-2xl p-5 sm:p-6 animate-fade-up"
+         style="margin-bottom: var(--sab);">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400/20 to-indigo-500/20 border border-sky-400/30 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 id="install-modal-title" class="text-base font-bold text-white">Instalar no iPhone</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Acesso rápido em tela cheia pela Tela de Início</p>
+          </div>
+        </div>
+
+        <button id="btn-close-modal"
+                type="button"
+                aria-label="Fechar guia de instalação"
+                class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.06] transition">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <ol class="mt-5 space-y-3.5 text-sm text-slate-200">
+        <li class="flex items-start gap-3 p-3 rounded-2xl bg-obsidian/70 border border-white/[0.06]">
+          <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <div class="text-xs leading-relaxed">
+            Abra este link no <strong class="text-white">Safari</strong> do seu iPhone.
+          </div>
+        </li>
+
+        <li class="flex items-start gap-3 p-3 rounded-2xl bg-obsidian/70 border border-white/[0.06]">
+          <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <div class="text-xs leading-relaxed flex items-center flex-wrap gap-1">
+            <span>Toque no botão</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 text-sky-300 font-medium">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Compartilhar
+            </span>
+            <span>na barra do Safari.</span>
+          </div>
+        </li>
+
+        <li class="flex items-start gap-3 p-3 rounded-2xl bg-obsidian/70 border border-white/[0.06]">
+          <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <div class="text-xs leading-relaxed">
+            Role para baixo e toque em <strong class="text-white">"Adicionar à Tela de Início"</strong>, depois confirme em <strong class="text-white">"Adicionar"</strong>.
+          </div>
+        </li>
+      </ol>
+
+      <button id="btn-understood-modal"
+              type="button"
+              class="mt-5 w-full py-3 rounded-2xl bg-sky-500 hover:bg-sky-400 active:scale-[0.99] text-slate-950 font-semibold text-sm transition">
+        Entendi
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const CACHE_TTL_MS = 5 * 60 * 1000;
+    const CACHE_STORAGE_KEY = 'feed_diario_cache_v3';
+    const ACTIVE_TAB_KEY = 'feed_diario_active_tab_v2';
+    const READ_LINKS_KEY = 'feed_diario_read_links_v1';
+    const WATCHLIST_KEY = 'feed_diario_watchlist_v1';
+    const LAST_TICKER_KEY = 'feed_diario_last_ticker_v1';
+
+    const DEFAULT_WATCHLIST = ['PETR4.SA', 'VALE3.SA', 'ITUB4.SA', 'BBAS3.SA', 'WEGE3.SA', 'AAPL', 'NVDA'];
+
+    const RANGE_CONFIG = {
+      '1d':  { interval: '5m',  label: 'Hoje (5m)' },
+      '5d':  { interval: '15m', label: '5 Dias (15m)' },
+      '1mo': { interval: '1d',  label: '1 Mês (Diário)' },
+      '6mo': { interval: '1d',  label: '6 Meses (Diário)' },
+      '1y':  { interval: '1wk', label: '1 Ano (Semanal)' },
+      '5y':  { interval: '1mo', label: '5 Anos (Mensal)' }
+    };
+
+    const SOURCES = {
+      infomoney: {
+        id: 'infomoney',
+        name: 'InfoMoney',
+        dotClass: 'bg-emerald-400',
+        badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25',
+        rssUrls: [
+          'https://www.infomoney.com.br/feed/',
+          'https://www.infomoney.com.br/mercados/feed/'
+        ],
+        fallbackItems: [
+          {
+            title: 'Mercados monitoram cenário de juros e dados fiscais no radar dos investidores',
+            summary: 'Analistas avaliam impactos da curva de juros doméstica e expectativas globais sobre ações, câmbio e títulos de renda fixa.',
+            link: 'https://www.infomoney.com.br/mercados/',
+            pubDate: new Date(Date.now() - 18 * 60 * 1000).toISOString()
+          },
+          {
+            title: 'Renda fixa e fundos imobiliários: como equilibrar carteira em momentos de volatilidade',
+            summary: 'Especialistas apontam estratégias de diversificação entre indexadores de inflação, pós-fixados e ativos geradores de renda.',
+            link: 'https://www.infomoney.com.br/onde-investir/',
+            pubDate: new Date(Date.now() - 52 * 60 * 1000).toISOString()
+          }
+        ]
+      },
+      tecnoblog: {
+        id: 'tecnoblog',
+        name: 'Tecnoblog',
+        dotClass: 'bg-sky-400',
+        badgeClass: 'bg-sky-500/15 text-sky-300 border-sky-500/25',
+        rssUrls: [
+          'https://tecnoblog.net/feed/'
+        ],
+        fallbackItems: [
+          {
+            title: 'Novos recursos de inteligência artificial embarcada avançam em smartphones e sistemas',
+            summary: 'Fabricantes apostam em processamento local, maior autonomia de bateria e ferramentas práticas de produtividade no dia a dia.',
+            link: 'https://tecnoblog.net/',
+            pubDate: new Date(Date.now() - 14 * 60 * 1000).toISOString()
+          }
+        ]
+      },
+      macmagazine: {
+        id: 'macmagazine',
+        name: 'MacMagazine',
+        dotClass: 'bg-violet-400',
+        badgeClass: 'bg-violet-500/15 text-violet-300 border-violet-500/25',
+        rssUrls: [
+          'https://macmagazine.com.br/feed/'
+        ],
+        fallbackItems: [
+          {
+            title: 'Atualizações do iOS, iPadOS e macOS trazem ajustes de desempenho e novos recursos',
+            summary: 'Compilado destaca melhorias de estabilidade, privacidade e integração entre iPhone, Mac e Apple Watch.',
+            link: 'https://macmagazine.com.br/',
+            pubDate: new Date(Date.now() - 22 * 60 * 1000).toISOString()
+          }
+        ]
+      }
+    };
+
+    let currentTab = loadInitialTab();
+    let isLoading = false;
+    let toastTimer = null;
+    let searchQuery = '';
+    let currentTicker = loadLastTicker();
+    let currentRange = '1mo';
+    let currentStockSeries = null;
+
+    const headerTitleEl = document.getElementById('header-title');
+    const sourceDotEl = document.getElementById('source-dot');
+    const cacheStatusTextEl = document.getElementById('cache-status-text');
+    const fallbackBadgeEl = document.getElementById('fallback-badge');
+    const fallbackNoticeEl = document.getElementById('fallback-notice');
+    const feedContainerEl = document.getElementById('feed-container');
+    const btnRefreshEl = document.getElementById('btn-refresh');
+    const refreshIconEl = document.getElementById('refresh-icon');
+    const refreshLabelEl = document.getElementById('refresh-label');
+    const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+    const toastBannerEl = document.getElementById('toast-banner');
+    const toastTextEl = document.getElementById('toast-text');
+
+    const newsSectionEl = document.getElementById('news-section');
+    const stocksSectionEl = document.getElementById('stocks-section');
+    const newsSearchInputEl = document.getElementById('news-search-input');
+    const btnClearSearchEl = document.getElementById('btn-clear-search');
+
+    // Elementos de Ações
+    const stockSearchFormEl = document.getElementById('stock-search-form');
+    const stockTickerInputEl = document.getElementById('stock-ticker-input');
+    const watchlistChipsEl = document.getElementById('watchlist-chips');
+    const stockSymbolTitleEl = document.getElementById('stock-symbol-title');
+    const stockExchangeBadgeEl = document.getElementById('stock-exchange-badge');
+    const stockCompanyNameEl = document.getElementById('stock-company-name');
+    const btnToggleWatchlistEl = document.getElementById('btn-toggle-watchlist');
+    const watchlistStarIconEl = document.getElementById('watchlist-star-icon');
+    const stockCurrentPriceEl = document.getElementById('stock-current-price');
+    const stockHoverDateEl = document.getElementById('stock-hover-date');
+    const stockChangePillEl = document.getElementById('stock-change-pill');
+    const stockChartContainerEl = document.getElementById('stock-chart-container');
+    const stockStatOpenEl = document.getElementById('stock-stat-open');
+    const stockStatHighEl = document.getElementById('stock-stat-high');
+    const stockStatLowEl = document.getElementById('stock-stat-low');
+    const tfButtons = Array.from(document.querySelectorAll('.tf-btn'));
+
+    // Modal e Pull-to-Refresh
+    const installModalEl = document.getElementById('install-modal');
+    const btnInstallGuideEl = document.getElementById('btn-install-guide');
+    const btnCloseModalEl = document.getElementById('btn-close-modal');
+    const btnUnderstoodModalEl = document.getElementById('btn-understood-modal');
+    const ptrIndicatorEl = document.getElementById('ptr-indicator');
+    const ptrIconEl = document.getElementById('ptr-icon');
+    const ptrTextEl = document.getElementById('ptr-text');
+
+    function showToast(message) {
+      if (!toastBannerEl || !toastTextEl) return;
+      toastTextEl.textContent = message;
+      toastBannerEl.classList.remove('opacity-0');
+      toastBannerEl.classList.add('opacity-100');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toastBannerEl.classList.remove('opacity-100');
+        toastBannerEl.classList.add('opacity-0');
+      }, 2400);
+    }
+
+    function loadInitialTab() {
+      try {
+        const saved = localStorage.getItem(ACTIVE_TAB_KEY);
+        if (saved && (SOURCES[saved] || saved === 'acoes')) return saved;
+      } catch (_) {}
+      return 'infomoney';
+    }
+
+    function saveActiveTab(tabId) {
+      try {
+        localStorage.setItem(ACTIVE_TAB_KEY, tabId);
+      } catch (_) {}
+    }
+
+    function getReadLinks() {
+      try {
+        const raw = localStorage.getItem(READ_LINKS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(arr) ? arr : []);
+      } catch (_) {
+        return new Set();
+      }
+    }
+
+    function markLinkAsRead(link) {
+      if (!link || link === '#') return;
+      try {
+        const set = getReadLinks();
+        set.add(link);
+        const trimmed = Array.from(set).slice(-200);
+        localStorage.setItem(READ_LINKS_KEY, JSON.stringify(trimmed));
+      } catch (_) {}
+    }
+
+    function readCacheStore() {
+      try {
+        const raw = localStorage.getItem(CACHE_STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function getTabCache(key) {
+      const store = readCacheStore();
+      return store[key] || null;
+    }
+
+    function writeTabCache(key, entry) {
+      try {
+        const store = readCacheStore();
+        store[key] = {
+          ...entry,
+          timestamp: entry.timestamp || Date.now()
+        };
+        localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(store));
+      } catch (_) {}
+    }
+
+    function isCacheFresh(cacheEntry) {
+      if (!cacheEntry || !cacheEntry.timestamp) return false;
+      return (Date.now() - cacheEntry.timestamp) < CACHE_TTL_MS;
+    }
+
+    function formatRelativeTime(isoOrMs) {
+      const targetMs = typeof isoOrMs === 'number' ? isoOrMs : Date.parse(isoOrMs);
+      if (!targetMs || Number.isNaN(targetMs)) return 'Agora mesmo';
+      const diffSec = Math.max(0, Math.floor((Date.now() - targetMs) / 1000));
+      if (diffSec < 60) return 'Há poucos segundos';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `Há ${diffMin} min`;
+      const diffHours = Math.floor(diffMin / 60);
+      if (diffHours < 24) return `Há ${diffHours}h`;
+      const diffDays = Math.floor(diffHours / 24);
+      return `Há ${diffDays}d`;
+    }
+
+    function formatCacheLabel(cacheEntry) {
+      if (!cacheEntry || !cacheEntry.timestamp) return 'Sem atualização recente';
+      const elapsedMs = Date.now() - cacheEntry.timestamp;
+      const elapsedMin = Math.floor(elapsedMs / 60000);
+      const fresh = elapsedMs < CACHE_TTL_MS;
+
+      if (elapsedMin < 1) {
+        return fresh ? 'Atualizado agora · Cache (5 min)' : 'Atualizado há < 1 min';
+      }
+      return fresh
+        ? `Atualizado há ${elapsedMin} min · Cache ativo`
+        : `Atualizado há ${elapsedMin} min · Cache expirado`;
+    }
+
+    function stripHtmlAndTruncate(htmlString, maxLength = 175) {
+      if (!htmlString) return 'Leia a matéria completa na fonte original.';
+      const tmp = document.createElement('div');
+      tmp.innerHTML = htmlString;
+      const text = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+      if (!text) return 'Leia a matéria completa na fonte original.';
+      if (text.length <= maxLength) return text;
+      return text.slice(0, maxLength).trimEnd().replace(/[.,;:\s]+$/, '') + '…';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function sanitizeUrl(url) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+          return parsed.href;
+        }
+      } catch (_) {}
+      return '#';
+    }
+
+    function withCacheBuster(url, forceRefresh) {
+      if (!forceRefresh) return url;
+      const sep = url.includes('?') ? '&' : '?';
+      return `${url}${sep}_cb=${Date.now()}`;
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 5500) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, {
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // =========================================================================
+    // RSS / Notícias
+    // =========================================================================
+    function parseRssXmlString(xmlText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlText, 'application/xml');
+      if (doc.querySelector('parsererror')) throw new Error('Falha XML');
+
+      const entries = Array.from(doc.querySelectorAll('item, entry'));
+      if (entries.length === 0) throw new Error('Feed vazio');
+
+      return entries.slice(0, 15).map((entry) => {
+        const titleEl = entry.querySelector('title');
+        const descEl = entry.querySelector('description, summary, content\\:encoded, encoded');
+        const dateEl = entry.querySelector('pubDate, published, updated');
+        let linkHref = '';
+        const linkEl = entry.querySelector('link');
+        if (linkEl) linkHref = linkEl.getAttribute('href') || linkEl.textContent || '';
+
+        const rawDate = dateEl ? dateEl.textContent.trim() : '';
+        const parsedDate = rawDate && !Number.isNaN(Date.parse(rawDate))
+          ? new Date(rawDate).toISOString()
+          : new Date().toISOString();
+
+        return {
+          title: (titleEl ? titleEl.textContent : 'Sem título').trim(),
+          summary: stripHtmlAndTruncate(descEl ? descEl.textContent : ''),
+          link: sanitizeUrl(linkHref.trim()),
+          pubDate: parsedDate
+        };
+      });
+    }
+
+    async function fetchFromCodeTabs(rssUrl, forceRefresh) {
+      const target = withCacheBuster(rssUrl, forceRefresh);
+      const endpoint = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`;
+      const res = await fetchWithTimeout(endpoint);
+      return parseRssXmlString(await res.text());
+    }
+
+    async function fetchFromAllOrigins(rssUrl, forceRefresh) {
+      const target = withCacheBuster(rssUrl, forceRefresh);
+      const endpoint = `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`;
+      const res = await fetchWithTimeout(endpoint);
+      return parseRssXmlString(await res.text());
+    }
+
+    async function fetchFromRss2Json(rssUrl, forceRefresh) {
+      const target = withCacheBuster(rssUrl, forceRefresh);
+      const endpoint = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(target)}`;
+      const res = await fetchWithTimeout(endpoint);
+      const data = await res.json();
+      if (data.status !== 'ok' || !Array.isArray(data.items) || data.items.length === 0) {
+        throw new Error('rss2json inválido');
+      }
+      return data.items.slice(0, 15).map((item) => ({
+        title: (item.title || 'Sem título').trim(),
+        summary: stripHtmlAndTruncate(item.description || item.content || ''),
+        link: sanitizeUrl(item.link),
+        pubDate: item.pubDate ? new Date(item.pubDate.replace(' ', 'T')).toISOString() : new Date().toISOString()
+      }));
+    }
+
+    async function fetchSourceNews(sourceConfig, forceRefresh = false) {
+      for (const rssUrl of sourceConfig.rssUrls) {
+        try {
+          const items = await fetchFromCodeTabs(rssUrl, forceRefresh);
+          if (items && items.length > 0) return { items, isFallback: false };
+        } catch (_) {}
+
+        try {
+          const items = await fetchFromAllOrigins(rssUrl, forceRefresh);
+          if (items && items.length > 0) return { items, isFallback: false };
+        } catch (_) {}
+
+        try {
+          const items = await fetchFromRss2Json(rssUrl, forceRefresh);
+          if (items && items.length > 0) return { items, isFallback: false };
+        } catch (_) {}
+      }
+
+      const fallbackItems = sourceConfig.fallbackItems.map((item, idx) => ({
+        ...item,
+        pubDate: new Date(Date.now() - (idx + 1) * 24 * 60 * 1000).toISOString()
+      }));
+      return { items: fallbackItems, isFallback: true };
+    }
+
+    function renderFeed(sourceConfig, cacheEntry) {
+      const allItems = (cacheEntry && Array.isArray(cacheEntry.items)) ? cacheEntry.items : [];
+      const isFallback = Boolean(cacheEntry && cacheEntry.isFallback);
+      const readSet = getReadLinks();
+
+      cacheStatusTextEl.textContent = formatCacheLabel(cacheEntry);
+      fallbackBadgeEl.classList.toggle('hidden', !isFallback);
+      fallbackNoticeEl.classList.toggle('hidden', !isFallback);
+
+      const q = searchQuery.trim().toLowerCase();
+      const items = q
+        ? allItems.filter((it) => it.title.toLowerCase().includes(q) || it.summary.toLowerCase().includes(q))
+        : allItems;
+
+      if (items.length === 0) {
+        feedContainerEl.innerHTML = `
+          <div class="p-6 rounded-2xl bg-surface border border-white/[0.07] text-center space-y-2">
+            <p class="text-sm font-medium text-slate-200">${q ? 'Nenhuma manchete corresponde à busca.' : 'Nenhuma notícia disponível no momento.'}</p>
+            <p class="text-xs text-slate-400">${q ? 'Limpe o filtro para ver todas as notícias.' : 'Toque em Atualizar para buscar novamente.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      feedContainerEl.innerHTML = items.map((item) => {
+        const safeTitle = escapeHtml(item.title);
+        const safeSummary = escapeHtml(item.summary);
+        const safeLink = sanitizeUrl(item.link);
+        const relTime = escapeHtml(formatRelativeTime(item.pubDate));
+        const isRead = readSet.has(safeLink);
+
+        return `
+          <article class="group p-4 rounded-2xl bg-surface hover:bg-surfaceElevated/80 border border-white/[0.07] transition flex flex-col gap-2.5 ${isRead ? 'opacity-75' : ''}">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${sourceConfig.badgeClass}">
+                  ${escapeHtml(sourceConfig.name)}
+                </span>
+                ${isRead ? '<span class="text-[10px] text-slate-500 font-medium">Lida</span>' : ''}
+              </div>
+              <time datetime="${escapeHtml(item.pubDate || '')}" class="text-xs text-slate-400 shrink-0">
+                ${relTime}
+              </time>
+            </div>
+
+            <h2 class="text-[15px] sm:text-base font-semibold leading-snug ${isRead ? 'text-slate-300' : 'text-white'}">
+              ${safeTitle}
+            </h2>
+
+            <p class="text-xs sm:text-[13px] leading-relaxed text-slate-300/90">
+              ${safeSummary}
+            </p>
+
+            <div class="pt-1.5 flex items-center justify-between gap-2">
+              <button type="button"
+                      data-share-title="${safeTitle}"
+                      data-share-url="${safeLink}"
+                      class="btn-share-news inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.09] active:scale-95 text-slate-300 text-xs font-medium border border-white/[0.06] transition">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                <span>Enviar</span>
+              </button>
+
+              <a href="${safeLink}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 data-read-link="${safeLink}"
+                 class="btn-open-article inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.13] active:scale-95 text-sky-300 text-xs font-semibold border border-white/[0.08] transition shrink-0">
+                <span>Ler matéria</span>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    async function loadTabFeed(tabId, forceRefresh = false) {
+      const sourceConfig = SOURCES[tabId];
+      if (!sourceConfig) return;
+
+      const existingCache = getTabCache(tabId);
+      if (!forceRefresh && isCacheFresh(existingCache)) {
+        renderFeed(sourceConfig, existingCache);
+        return;
+      }
+
+      if (existingCache && Array.isArray(existingCache.items) && existingCache.items.length > 0) {
+        renderFeed(sourceConfig, existingCache);
+        cacheStatusTextEl.textContent = 'Atualizando feed...';
+      } else {
+        renderSkeletons();
+        cacheStatusTextEl.textContent = 'Buscando notícias...';
+      }
+
+      setLoadingState(true);
+      try {
+        const result = await fetchSourceNews(sourceConfig, forceRefresh);
+        const previousFirstTitle = existingCache && existingCache.items && existingCache.items[0]
+          ? existingCache.items[0].title
+          : null;
+        const newFirstTitle = result.items && result.items[0] ? result.items[0].title : null;
+
+        const freshEntry = {
+          items: result.items,
+          timestamp: Date.now(),
+          isFallback: result.isFallback
+        };
+        writeTabCache(tabId, freshEntry);
+
+        if (currentTab === tabId) {
+          renderFeed(sourceConfig, freshEntry);
+          if (forceRefresh) {
+            if (result.isFallback) {
+              showToast('Sem resposta do RSS agora — tente novamente');
+            } else if (previousFirstTitle && previousFirstTitle === newFirstTitle) {
+              showToast('Feed verificado · Nenhuma matéria mais recente');
+            } else {
+              showToast('Notícias atualizadas!');
+            }
+          }
+        }
+      } catch (_) {
+        if (existingCache) renderFeed(sourceConfig, existingCache);
+        if (forceRefresh) showToast('Falha ao conectar · Tente novamente');
+      } finally {
+        setLoadingState(false);
+      }
+    }
+
+    // =========================================================================
+    // AÇÕES & GRÁFICOS INTERATIVOS (Yahoo Finance via proxy CORS)
+    // =========================================================================
+    function loadWatchlist() {
+      try {
+        const raw = localStorage.getItem(WATCHLIST_KEY);
+        const arr = raw ? JSON.parse(raw) : null;
+        if (Array.isArray(arr) && arr.length > 0) return arr;
+      } catch (_) {}
+      return [...DEFAULT_WATCHLIST];
+    }
+
+    function saveWatchlist(list) {
+      try {
+        localStorage.setItem(WATCHLIST_KEY, JSON.stringify(list));
+      } catch (_) {}
+    }
+
+    function loadLastTicker() {
+      try {
+        const saved = localStorage.getItem(LAST_TICKER_KEY);
+        if (saved) return saved;
+      } catch (_) {}
+      return 'PETR4.SA';
+    }
+
+    function saveLastTicker(ticker) {
+      try {
+        localStorage.setItem(LAST_TICKER_KEY, ticker);
+      } catch (_) {}
+    }
+
+    function normalizeTicker(rawInput) {
+      let clean = String(rawInput || '').trim().toUpperCase().replace(/\s+/g, '');
+      if (!clean) return 'PETR4.SA';
+      // Se for padrão brasileiro (4 letras + 1 ou 2 dígitos, ex: PETR4, MXRF11, BOVA11) sem sufixo, adiciona .SA
+      if (/^[A-Z]{4}\d{1,2}[F]?$/.test(clean)) {
+        clean += '.SA';
+      }
+      return clean;
+    }
+
+    function formatCurrency(val, currency = 'BRL') {
+      if (typeof val !== 'number' || Number.isNaN(val)) return '—';
+      try {
+        return new Intl.NumberFormat(currency === 'BRL' ? 'pt-BR' : 'en-US', {
+          style: 'currency',
+          currency: currency || 'BRL',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(val);
+      } catch (_) {
+        return val.toFixed(2);
+      }
+    }
+
+    function renderWatchlistChips() {
+      const list = loadWatchlist();
+      watchlistChipsEl.innerHTML = list.map((sym) => {
+        const active = sym === currentTicker;
+        const label = sym.replace(/\.SA$/, '');
+        return `
+          <button type="button"
+                  data-ticker="${escapeHtml(sym)}"
+                  class="chip-ticker px-3 py-1.5 rounded-xl text-xs font-semibold border transition shrink-0 ${
+                    active
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-400/40'
+                      : 'bg-surface text-slate-300 border-white/[0.08] hover:bg-surfaceElevated'
+                  }">
+            ${escapeHtml(label)}
+          </button>
+        `;
+      }).join('');
+
+      const isSaved = list.includes(currentTicker);
+      watchlistStarIconEl.setAttribute('fill', isSaved ? 'currentColor' : 'none');
+    }
+
+    function updateTimeframeButtonsUI() {
+      tfButtons.forEach((btn) => {
+        const active = btn.dataset.range === currentRange;
+        if (active) {
+          btn.classList.add('bg-white/[0.12]', 'text-white');
+          btn.classList.remove('text-slate-400');
+        } else {
+          btn.classList.remove('bg-white/[0.12]', 'text-white');
+          btn.classList.add('text-slate-400');
+        }
+      });
+    }
+
+    async function fetchStockChartData(ticker, range, forceRefresh = false) {
+      const cfg = RANGE_CONFIG[range] || RANGE_CONFIG['1mo'];
+      const baseYahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=${range}&interval=${cfg.interval}&includePrePost=false`;
+      const targetUrl = withCacheBuster(baseYahooUrl, forceRefresh);
+
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+      ];
+
+      let lastErr = null;
+      for (const proxyUrl of proxies) {
+        try {
+          const res = await fetchWithTimeout(proxyUrl, 6000);
+          const json = await res.json();
+          const result = json && json.chart && json.chart.result && json.chart.result[0];
+          if (!result || !result.timestamp || !result.indicators || !result.indicators.quote) {
+            throw new Error('Ativo não encontrado');
+          }
+
+          const meta = result.meta || {};
+          const timestamps = result.timestamp;
+          const quote = result.indicators.quote[0] || {};
+          const closes = quote.close || [];
+          const opens = quote.open || [];
+          const highs = quote.high || [];
+          const lows = quote.low || [];
+
+          const points = [];
+          for (let i = 0; i < timestamps.length; i++) {
+            const c = closes[i];
+            if (typeof c === 'number' && !Number.isNaN(c)) {
+              points.push({
+                ts: timestamps[i] * 1000,
+                close: c,
+                open: typeof opens[i] === 'number' ? opens[i] : c,
+                high: typeof highs[i] === 'number' ? highs[i] : c,
+                low: typeof lows[i] === 'number' ? lows[i] : c
+              });
+            }
+          }
+
+          if (points.length === 0) throw new Error('Sem cotações no período');
+
+          return {
+            symbol: meta.symbol || ticker,
+            shortName: meta.shortName || meta.longName || ticker,
+            exchangeName: meta.exchangeName || (ticker.endsWith('.SA') ? 'B3' : 'Bolsa'),
+            currency: meta.currency || (ticker.endsWith('.SA') ? 'BRL' : 'USD'),
+            regularMarketPrice: typeof meta.regularMarketPrice === 'number' ? meta.regularMarketPrice : points[points.length - 1].close,
+            previousClose: typeof meta.chartPreviousClose === 'number' ? meta.chartPreviousClose : points[0].open,
+            points
+          };
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+
+      throw lastErr || new Error('Não foi possível obter cotação');
+    }
+
+    function formatPointDate(ts, range) {
+      const d = new Date(ts);
+      if (range === '1d' || range === '5d') {
+        return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      }
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function renderInteractiveStockChart(stockData) {
+      currentStockSeries = stockData;
+      const pts = stockData.points;
+      const currency = stockData.currency;
+
+      stockSymbolTitleEl.textContent = stockData.symbol;
+      stockExchangeBadgeEl.textContent = stockData.exchangeName;
+      stockCompanyNameEl.textContent = stockData.shortName;
+
+      const latestPrice = stockData.regularMarketPrice;
+      const baselinePrice = currentRange === '1d' ? stockData.previousClose : pts[0].close;
+      const diff = latestPrice - baselinePrice;
+      const pct = baselinePrice ? (diff / baselinePrice) * 100 : 0;
+      const isPositive = diff >= 0;
+
+      const restoreDefaultHeader = () => {
+        stockCurrentPriceEl.textContent = formatCurrency(latestPrice, currency);
+        stockHoverDateEl.textContent = `${RANGE_CONFIG[currentRange].label} · Toque no gráfico para detalhes`;
+        const sign = isPositive ? '+' : '';
+        stockChangePillEl.textContent = `${sign}${pct.toFixed(2).replace('.', ',')}% (${sign}${formatCurrency(diff, currency)})`;
+        stockChangePillEl.className = isPositive
+          ? 'px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25'
+          : 'px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/25';
+      };
+
+      restoreDefaultHeader();
+
+      const minVal = Math.min(...pts.map((p) => p.low));
+      const maxVal = Math.max(...pts.map((p) => p.high));
+      const firstOpen = pts[0].open;
+
+      stockStatOpenEl.textContent = formatCurrency(firstOpen, currency);
+      stockStatHighEl.textContent = formatCurrency(maxVal, currency);
+      stockStatLowEl.textContent = formatCurrency(minVal, currency);
+
+      // Construção do SVG responsivo
+      const W = 600;
+      const H = 240;
+      const padX = 10;
+      const padY = 20;
+      const span = Math.max(0.0001, maxVal - minVal);
+
+      const coords = pts.map((p, i) => {
+        const x = padX + (pts.length === 1 ? 0 : (i / (pts.length - 1)) * (W - padX * 2));
+        const y = padY + (1 - (p.close - minVal) / span) * (H - padY * 2);
+        return { x, y, point: p };
+      });
+
+      const linePath = coords.map((c, idx) => `${idx === 0 ? 'M' : 'L'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+      const areaPath = `${linePath} L${coords[coords.length - 1].x.toFixed(1)},${H} L${coords[0].x.toFixed(1)},${H} Z`;
+      const strokeColor = isPositive ? '#34d399' : '#fb7185';
+      const gradId = isPositive ? 'gradUp' : 'gradDown';
+
+      stockChartContainerEl.innerHTML = `
+        <svg id="stock-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="w-full h-full block">
+          <defs>
+            <linearGradient id="gradUp" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="0.32" />
+              <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
+            </linearGradient>
+            <linearGradient id="gradDown" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32" />
+              <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          <!-- Linhas horizontais sutis -->
+          <line x1="0" y1="${H * 0.25}" x2="${W}" y2="${H * 0.25}" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4" />
+          <line x1="0" y1="${H * 0.50}" x2="${W}" y2="${H * 0.50}" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4" />
+          <line x1="0" y1="${H * 0.75}" x2="${W}" y2="${H * 0.75}" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4" />
+
+          <!-- Área e linha principal -->
+          <path d="${areaPath}" fill="url(#${gradId})" />
+          <path d="${linePath}" fill="none" stroke="${strokeColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Cursor interativo ao tocar/passar o dedo -->
+          <line id="chart-crosshair" x1="0" y1="0" x2="0" y2="${H}" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="3 3" visibility="hidden" />
+          <circle id="chart-dot" cx="0" cy="0" r="5.5" fill="${strokeColor}" stroke="#090d16" stroke-width="2.5" visibility="hidden" />
+        </svg>
+      `;
+
+      const svgEl = document.getElementById('stock-svg');
+      const crosshairEl = document.getElementById('chart-crosshair');
+      const dotEl = document.getElementById('chart-dot');
+
+      const handleScrub = (clientX) => {
+        const rect = svgEl.getBoundingClientRect();
+        if (!rect.width) return;
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const idx = Math.round(ratio * (coords.length - 1));
+        const target = coords[idx];
+        if (!target) return;
+
+        crosshairEl.setAttribute('x1', target.x.toFixed(1));
+        crosshairEl.setAttribute('x2', target.x.toFixed(1));
+        crosshairEl.setAttribute('visibility', 'visible');
+
+        dotEl.setAttribute('cx', target.x.toFixed(1));
+        dotEl.setAttribute('cy', target.y.toFixed(1));
+        dotEl.setAttribute('visibility', 'visible');
+
+        stockCurrentPriceEl.textContent = formatCurrency(target.point.close, currency);
+        stockHoverDateEl.textContent = formatPointDate(target.point.ts, currentRange);
+      };
+
+      const hideScrub = () => {
+        crosshairEl.setAttribute('visibility', 'hidden');
+        dotEl.setAttribute('visibility', 'hidden');
+        restoreDefaultHeader();
+      };
+
+      svgEl.addEventListener('pointerdown', (e) => handleScrub(e.clientX));
+      svgEl.addEventListener('pointermove', (e) => {
+        if (e.buttons > 0 || e.pointerType === 'mouse') {
+          handleScrub(e.clientX);
+        }
+      });
+      svgEl.addEventListener('pointerup', hideScrub);
+      svgEl.addEventListener('pointerleave', hideScrub);
+    }
+
+    async function loadStockView(tickerInput, rangeInput, forceRefresh = false) {
+      const normalized = normalizeTicker(tickerInput || currentTicker);
+      currentTicker = normalized;
+      currentRange = rangeInput || currentRange;
+      saveLastTicker(currentTicker);
+
+      stockTickerInputEl.value = currentTicker.replace(/\.SA$/, '');
+      renderWatchlistChips();
+      updateTimeframeButtonsUI();
+
+      const cacheKey = `stock_${currentTicker}_${currentRange}`;
+      const cached = getTabCache(cacheKey);
+
+      if (!forceRefresh && isCacheFresh(cached) && cached.stockData) {
+        cacheStatusTextEl.textContent = formatCacheLabel(cached);
+        renderInteractiveStockChart(cached.stockData);
+        return;
+      }
+
+      setLoadingState(true);
+      cacheStatusTextEl.textContent = `Buscando ${currentTicker}...`;
+      stockChartContainerEl.innerHTML = `<span class="text-xs text-slate-400 animate-pulse">Carregando gráfico de ${escapeHtml(currentTicker)}...</span>`;
+
+      try {
+        const data = await fetchStockChartData(currentTicker, currentRange, forceRefresh);
+        const entry = { stockData: data, timestamp: Date.now() };
+        writeTabCache(cacheKey, entry);
+
+        if (currentTab === 'acoes') {
+          cacheStatusTextEl.textContent = formatCacheLabel(entry);
+          renderInteractiveStockChart(data);
+          if (forceRefresh) showToast(`Gráfico de ${data.symbol} atualizado!`);
+        }
+      } catch (err) {
+        stockCompanyNameEl.textContent = 'Ativo não encontrado ou indisponível no momento';
+        stockCurrentPriceEl.textContent = '—';
+        stockChartContainerEl.innerHTML = `
+          <div class="p-4 text-center space-y-1.5">
+            <p class="text-xs font-semibold text-rose-300">Não foi possível carregar "${escapeHtml(currentTicker)}"</p>
+            <p class="text-[11px] text-slate-400">Verifique o código (ex: PETR4, VALE3, ITUB4, AAPL) e tente novamente.</p>
+          </div>
+        `;
+        cacheStatusTextEl.textContent = 'Erro ao buscar ativo';
+      } finally {
+        setLoadingState(false);
+      }
+    }
+
+    // =========================================================================
+    // Navegação geral e eventos
+    // =========================================================================
+    function updateTabSelectionUI() {
+      const isStocks = currentTab === 'acoes';
+      newsSectionEl.classList.toggle('hidden', isStocks);
+      stocksSectionEl.classList.toggle('hidden', !isStocks);
+
+      if (isStocks) {
+        headerTitleEl.textContent = 'Ações & Gráficos';
+        sourceDotEl.className = 'w-2.5 h-2.5 rounded-full shrink-0 bg-amber-400';
+        fallbackBadgeEl.classList.add('hidden');
+      } else {
+        const source = SOURCES[currentTab];
+        headerTitleEl.textContent = source.name;
+        sourceDotEl.className = `w-2.5 h-2.5 rounded-full shrink-0 ${source.dotClass}`;
+      }
+
+      tabButtons.forEach((btn) => {
+        const isSelected = btn.dataset.tab === currentTab;
+        btn.setAttribute('aria-selected', String(isSelected));
+        if (isSelected) {
+          btn.classList.add('bg-white/[0.08]');
+        } else {
+          btn.classList.remove('bg-white/[0.08]');
+        }
+      });
+    }
+
+    function setLoadingState(loading) {
+      isLoading = loading;
+      if (loading) {
+        refreshIconEl.classList.add('animate-spin-smooth');
+        refreshLabelEl.textContent = 'Buscando...';
+        btnRefreshEl.setAttribute('disabled', 'true');
+        btnRefreshEl.classList.add('opacity-75');
+      } else {
+        refreshIconEl.classList.remove('animate-spin-smooth');
+        refreshLabelEl.textContent = 'Atualizar';
+        btnRefreshEl.removeAttribute('disabled');
+        btnRefreshEl.classList.remove('opacity-75');
+      }
+    }
+
+    function renderSkeletons() {
+      feedContainerEl.innerHTML = Array.from({ length: 4 }).map(() => `
+        <article class="p-4 rounded-2xl bg-surface border border-white/[0.06] animate-pulse space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div class="h-4 w-20 rounded-full bg-white/[0.07]"></div>
+            <div class="h-3.5 w-16 rounded bg-white/[0.06]"></div>
+          </div>
+          <div class="h-5 w-11/12 rounded bg-white/[0.09]"></div>
+          <div class="h-4 w-full rounded bg-white/[0.06]"></div>
+          <div class="pt-1 flex justify-end">
+            <div class="h-8 w-28 rounded-xl bg-white/[0.07]"></div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function switchTab(tabId) {
+      if (!SOURCES[tabId] && tabId !== 'acoes') return;
+      currentTab = tabId;
+      saveActiveTab(tabId);
+      updateTabSelectionUI();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      if (tabId === 'acoes') {
+        loadStockView(currentTicker, currentRange, false);
+      } else {
+        loadTabFeed(tabId, false);
+      }
+    }
+
+    // Eventos de busca de notícias e cliques nos cards
+    newsSearchInputEl.addEventListener('input', (e) => {
+      searchQuery = e.target.value || '';
+      btnClearSearchEl.classList.toggle('hidden', searchQuery.length === 0);
+      if (SOURCES[currentTab]) {
+        renderFeed(SOURCES[currentTab], getTabCache(currentTab));
+      }
+    });
+
+    btnClearSearchEl.addEventListener('click', () => {
+      searchQuery = '';
+      newsSearchInputEl.value = '';
+      btnClearSearchEl.classList.add('hidden');
+      if (SOURCES[currentTab]) {
+        renderFeed(SOURCES[currentTab], getTabCache(currentTab));
+      }
+    });
+
+    feedContainerEl.addEventListener('click', async (e) => {
+      const readBtn = e.target.closest('.btn-open-article');
+      if (readBtn) {
+        const href = readBtn.dataset.readLink;
+        markLinkAsRead(href);
+        setTimeout(() => {
+          if (SOURCES[currentTab]) renderFeed(SOURCES[currentTab], getTabCache(currentTab));
+        }, 400);
+        return;
+      }
+
+      const shareBtn = e.target.closest('.btn-share-news');
+      if (shareBtn) {
+        const title = shareBtn.dataset.shareTitle || '';
+        const url = shareBtn.dataset.shareUrl || '';
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, url });
+          } catch (_) {}
+        } else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(`${title} — ${url}`);
+          showToast('Link copiado!');
+        }
+      }
+    });
+
+    // Eventos da aba Ações
+    stockSearchFormEl.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = stockTickerInputEl.value;
+      if (val && val.trim()) {
+        stockTickerInputEl.blur();
+        loadStockView(val, currentRange, false);
+      }
+    });
+
+    watchlistChipsEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip-ticker');
+      if (chip && chip.dataset.ticker) {
+        loadStockView(chip.dataset.ticker, currentRange, false);
+      }
+    });
+
+    tfButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const range = btn.dataset.range;
+        if (range && range !== currentRange) {
+          loadStockView(currentTicker, range, false);
+        }
+      });
+    });
+
+    btnToggleWatchlistEl.addEventListener('click', () => {
+      const list = loadWatchlist();
+      const idx = list.indexOf(currentTicker);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        showToast(`${currentTicker.replace(/\.SA$/, '')} removido dos atalhos`);
+      } else {
+        list.unshift(currentTicker);
+        showToast(`${currentTicker.replace(/\.SA$/, '')} salvo nos atalhos!`);
+      }
+      saveWatchlist(list);
+      renderWatchlistChips();
+    });
+
+    // Pull-to-Refresh
+    let touchStartY = 0;
+    let pullDistance = 0;
+    let isPulling = false;
+    const PULL_THRESHOLD = 76;
+
+    function resetPullIndicator() {
+      isPulling = false;
+      pullDistance = 0;
+      ptrIndicatorEl.style.transform = 'translateY(-72px)';
+      ptrIconEl.style.transform = 'rotate(0deg)';
+      ptrTextEl.textContent = 'Puxe para atualizar';
+    }
+
+    document.addEventListener('touchstart', (e) => {
+      if (isLoading || window.scrollY > 2 || !e.touches || e.touches.length !== 1) return;
+      if (!installModalEl.classList.contains('hidden')) return;
+      touchStartY = e.touches[0].clientY;
+      isPulling = true;
+      pullDistance = 0;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isPulling || isLoading || !e.touches || e.touches.length !== 1) return;
+      if (window.scrollY > 2) {
+        resetPullIndicator();
+        return;
+      }
+
+      const deltaY = e.touches[0].clientY - touchStartY;
+      if (deltaY > 0) {
+        pullDistance = Math.min(115, deltaY * 0.55);
+        const translateY = Math.min(28, pullDistance - 44);
+        ptrIndicatorEl.style.transform = `translateY(${translateY}px)`;
+
+        if (pullDistance >= PULL_THRESHOLD) {
+          ptrIconEl.style.transform = 'rotate(180deg)';
+          ptrTextEl.textContent = 'Solte para atualizar';
+        } else {
+          ptrIconEl.style.transform = 'rotate(0deg)';
+          ptrTextEl.textContent = 'Puxe para atualizar';
+        }
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      if (!isPulling) return;
+      const shouldTrigger = pullDistance >= PULL_THRESHOLD && !isLoading;
+      resetPullIndicator();
+      if (shouldTrigger) {
+        if (currentTab === 'acoes') {
+          loadStockView(currentTicker, currentRange, true);
+        } else {
+          loadTabFeed(currentTab, true);
+        }
+      }
+    });
+
+    // Abas e botão Atualizar
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        if (tabId === currentTab) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          switchTab(tabId);
+        }
+      });
+    });
+
+    btnRefreshEl.addEventListener('click', () => {
+      if (isLoading) return;
+      if (currentTab === 'acoes') {
+        loadStockView(currentTicker, currentRange, true);
+      } else {
+        loadTabFeed(currentTab, true);
+      }
+    });
+
+    // Modal de instalação
+    function openInstallModal() {
+      installModalEl.classList.remove('hidden');
+      installModalEl.classList.add('flex');
+    }
+
+    function closeInstallModal() {
+      installModalEl.classList.add('hidden');
+      installModalEl.classList.remove('flex');
+    }
+
+    btnInstallGuideEl.addEventListener('click', openInstallModal);
+    btnCloseModalEl.addEventListener('click', closeInstallModal);
+    btnUnderstoodModalEl.addEventListener('click', closeInstallModal);
+
+    installModalEl.addEventListener('click', (e) => {
+      if (e.target === installModalEl) closeInstallModal();
+    });
+
+    setInterval(() => {
+      if (isLoading) return;
+      const key = currentTab === 'acoes' ? `stock_${currentTicker}_${currentRange}` : currentTab;
+      const cacheEntry = getTabCache(key);
+      if (cacheEntry) {
+        cacheStatusTextEl.textContent = formatCacheLabel(cacheEntry);
+      }
+    }, 30000);
+
+    // Inicialização
+    updateTabSelectionUI();
+    if (currentTab === 'acoes') {
+      loadStockView(currentTicker, currentRange, false);
+    } else {
+      loadTabFeed(currentTab, false);
+    }
+  </script>
+</body>
+</html>
